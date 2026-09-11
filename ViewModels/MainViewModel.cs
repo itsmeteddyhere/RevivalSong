@@ -24,6 +24,8 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] private string _currentStanzaText;
     [ObservableProperty] private string _previousStanzaText;
     [ObservableProperty] private string _nextStanzaText;
+    
+    [ObservableProperty] private string _endingState = "Ending skipped";
 
     [RelayCommand]
     private void LoadDB()
@@ -33,6 +35,24 @@ public partial class MainViewModel : ViewModelBase
         var songsFromDb = db.Songs.Take(50).ToList();
 
         SearchResults = new ObservableCollection<Song>(songsFromDb);
+    }
+
+    [RelayCommand]
+    private void PreviousStanza()
+    {
+        if (PreviousStanzaText != "")
+        {
+            SelectedStanza = CurrentStanzas[CurrentStanzas.IndexOf(SelectedStanza) - 1];
+        }
+    }
+    
+    [RelayCommand]
+    private void NextStanza()
+    {
+        if (NextStanzaText != "")
+        {
+            SelectedStanza = CurrentStanzas[CurrentStanzas.IndexOf(SelectedStanza) + 1];
+        }
     }
 
     partial void OnSearchQueryChanged(string val)
@@ -107,7 +127,7 @@ public partial class MainViewModel : ViewModelBase
 
                 if (matchingStanza != null)
                 {
-                    allArrangedStanzas.Add(matchingStanza);
+                    allArrangedStanzas.Add(matchingStanza.Clone());
                 }
             }
         }
@@ -120,6 +140,16 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedStanzaChanged(Stanza? value)
     {
         CurrentStanzaText = value?.Lyrics;
+
+        if (CurrentStanzas.IndexOf(value) != 0)
+        {
+            PreviousStanzaText = CurrentStanzas[CurrentStanzas.IndexOf(value) - 1].Lyrics;
+        } else { PreviousStanzaText = ""; }
+        
+        if (CurrentStanzas.IndexOf(value) != CurrentStanzas.Count - 1)
+        {
+            NextStanzaText = CurrentStanzas[CurrentStanzas.IndexOf(value) + 1].Lyrics;
+        } else { NextStanzaText = ""; }
     }
 
     public MainViewModel()
