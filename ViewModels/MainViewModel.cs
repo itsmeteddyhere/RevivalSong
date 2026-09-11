@@ -19,6 +19,12 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty] private ObservableCollection<Stanza> _currentStanzas = new();
 
+    [ObservableProperty] private Stanza? _selectedStanza;
+    
+    [ObservableProperty] private string _currentStanzaText;
+    [ObservableProperty] private string _previousStanzaText;
+    [ObservableProperty] private string _nextStanzaText;
+
     [RelayCommand]
     private void LoadDB()
     {
@@ -109,6 +115,11 @@ public partial class MainViewModel : ViewModelBase
 
 
         CurrentStanzas = new ObservableCollection<Stanza>(allArrangedStanzas);
+    }
+
+    partial void OnSelectedStanzaChanged(Stanza? value)
+    {
+        CurrentStanzaText = value?.Lyrics;
     }
 
     public MainViewModel()
