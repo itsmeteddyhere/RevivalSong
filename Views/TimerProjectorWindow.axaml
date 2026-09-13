@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:RevivalSong.ViewModels"
+        x:Class="RevivalSong.Views.TimerProjectorWindow"
+        x:DataType="vm:TimerViewModel"
+        Background="Black"
+        SystemDecorations="None"
+        WindowState="FullScreen"
+        Topmost="True"
+        Title="Timer Projector">
+
+    <Grid>
+        <Viewbox Stretch="Uniform" Margin="80">
+            <TextBlock Text="{Binding TimeDisplay}"
+                       Foreground="White"
+                       FontWeight="Bold"
+                       FontFamily="Consolas, Courier New, monospace" />
+        </Viewbox>
+    </Grid>
+
+</Window>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 
@@ -139,7 +138,6 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("language");
             entity.Property(e => e.Lyrics).HasColumnName("lyrics");
             entity.Property(e => e.SectionNumber)
-                .HasDefaultValue(1)
                 .HasColumnName("section_number");
             entity.Property(e => e.SectionType).HasColumnName("section_type");
             entity.Property(e => e.SongId).HasColumnName("song_id");

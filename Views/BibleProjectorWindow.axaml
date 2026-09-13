@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:RevivalSong.ViewModels"
+        x:Class="RevivalSong.Views.BibleProjectorWindow"
+        x:DataType="vm:BibleProjectorViewModel"
+        Background="Black"
+        SystemDecorations="None"
+        WindowState="FullScreen"
+        Topmost="True"
+        Title="Bible Projector">
+
+    <Grid>
+        <Viewbox Stretch="Uniform" Margin="80">
+            <TextBlock Text="{Binding Reference}"
+                       Foreground="White"
+                       FontWeight="Bold"
+                       TextAlignment="Center" />
+        </Viewbox>
+    </Grid>
+
+</Window>
