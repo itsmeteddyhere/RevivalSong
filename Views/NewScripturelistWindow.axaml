@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:RevivalSong.ViewModels"
+        x:DataType="vm:NewScripturelistViewModel"
+        mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="160"
+        x:Class="RevivalSong.Views.NewScripturelistWindow"
+        Width="320" Height="160" Background="#111"
+        Title="New Scripture List">
+
+    <Grid RowDefinitions="Auto, Auto, Auto" Margin="20, 30">
+        <TextBlock Grid.Row="0" Text="Scripture list name:" Foreground="#aaa"></TextBlock>
+        <TextBox Grid.Row="1" Text="{Binding ScripturelistName}" PlaceholderText="Speaker - DD/MM/YY" Margin="0,10,0,0"></TextBox>
+        <Grid Grid.Row="2" ColumnDefinitions="Auto, Auto" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Grid.Column="0" Content="Cancel" Command="{Binding CancelClickCommand}" Background="#222" Foreground="#aaa" Margin="0,0,2,0"/>
+            <Button Grid.Column="1" Content="Ok" Command="{Binding OkClickCommand}" Background="#222" Foreground="#aaa"/>
+        </Grid>
+    </Grid>
+
+</Window>

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RevivalSong")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+deb394b4d601e70886c139ba96eab00a3e518a10")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c90f4138a7fd63c7f81bf707969e11e6734e068c")]
 [assembly: System.Reflection.AssemblyProductAttribute("RevivalSong")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RevivalSong")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -35,4 +35,11 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Views\NewScripturelistWindow.axaml.cs">
+        <DependentUpon>NewScripturelistWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
 </Project>

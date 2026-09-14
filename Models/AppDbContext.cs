@@ -24,6 +24,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<SonglistItem> SonglistItems { get; set; }
 
     public virtual DbSet<Stanza> Stanzas { get; set; }
+    public virtual DbSet<Scripturelist> Scripturelists { get; set; }
+    public virtual DbSet<ScripturelistItem> ScripturelistItems { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

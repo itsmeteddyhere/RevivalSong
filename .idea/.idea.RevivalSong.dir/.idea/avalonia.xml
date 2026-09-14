@@ -3,7 +3,11 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="Views/BibleProjectorWindow.axaml" value="RevivalSong.csproj" />
         <entry key="Views/MainWindow.axaml" value="RevivalSong.csproj" />
+        <entry key="Views/NewScripturelistWindow.axaml" value="RevivalSong.csproj" />
+        <entry key="Views/NewSonglistWindow.axaml" value="RevivalSong.csproj" />
+        <entry key="Views/ProjectorWindow.axaml" value="RevivalSong.csproj" />
       </map>
     </option>
   </component>

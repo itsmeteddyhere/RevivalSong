@@ -77,6 +77,16 @@ public partial class MainViewModel : ViewModelBase
     
     [ObservableProperty] private string _bibleSearchQuery = "";
     private CancellationTokenSource? _bibleSearchCts;
+    
+    [ObservableProperty] private ObservableCollection<Scripturelist> _scripturelists = new();
+    [ObservableProperty] private Scripturelist? _selectedScripturelist;
+    [ObservableProperty] private string _selectedScripturelistTitle = "";
+    
+    public void LoadScripturelistsFromDb()
+    {
+        using var db = new AppDbContext();
+        Scripturelists = new ObservableCollection<Scripturelist>(db.Scripturelists.ToList());
+    }
 
     partial void OnBibleSearchQueryChanged(string value)
     {
@@ -122,21 +132,114 @@ public partial class MainViewModel : ViewModelBase
         SelectedVerse = verse;
     }
 
-    // DB Context placeholder (commented out per user request)
-    // private void SaveScriptureListToDb() {
-    //     using var db = new AppDbContext();
-    //     // Save logic here...
-    //     // db.SaveChanges();
-    // }
+    
+    private void SaveScriptureListToDb() 
+    {
+        if (SelectedScripturelist == null) return;
+        using var db = new AppDbContext();
+
+        var oldItems = db.ScripturelistItems.Where(i => i.ScripturelistId == SelectedScripturelist.Id);
+        db.ScripturelistItems.RemoveRange(oldItems);
+
+        for (int i = 0; i < ScriptureList.Count; i++)
+        {
+            var item = ScriptureList[i];
+            // Assuming Reference format is "Book Chapter:Verse" (e.g., "Genesis 1:1")
+            var parts = item.Reference.Split(' ');
+            string bookName = string.Join(" ", parts.Take(parts.Length - 1));
+            var chapterVerse = parts.Last().Split(':');
+            
+            int.TryParse(chapterVerse.ElementAtOrDefault(0), out int chapterNum);
+            int.TryParse(chapterVerse.ElementAtOrDefault(1), out int verseNum);
+
+            db.ScripturelistItems.Add(new ScripturelistItem
+            {
+                ScripturelistId = SelectedScripturelist.Id,
+                ItemOrder = i,
+                Book = bookName,
+                Chapter = chapterNum,
+                Verse = verseNum
+            });
+        }
+
+        db.SaveChanges();
+    }
+    
+    [RelayCommand]
+    private async Task MakeNewScripturelist()
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            && desktop.MainWindow is not null)
+        {
+            var dialog = new NewScripturelistWindow();
+            string? listName = await dialog.ShowDialog<string?>(desktop.MainWindow);
+
+            if (!string.IsNullOrWhiteSpace(listName))
+            {
+                using var db = new AppDbContext();
+                var newList = new Scripturelist
+                {
+                    Title = listName,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+                db.Scripturelists.Add(newList);
+                await db.SaveChangesAsync();
+
+                Scripturelists.Add(newList);
+                SelectedScripturelist = newList;
+            }
+        }
+    }
+    
+    partial void OnSelectedScripturelistChanged(Scripturelist? value)
+    {
+        if (value == null)
+        {
+            SelectedScripturelistTitle = "";
+            ScriptureList.Clear();
+            return;
+        }
+        using var db = new AppDbContext();
+
+        SelectedScripturelistTitle = value.Title;
+
+        var dbItems = db.ScripturelistItems
+            .Where(i => i.ScripturelistId == value.Id)
+            .OrderBy(i => i.ItemOrder)
+            .ToList();
+
+        var loadedList = new List<ScriptureListItem>();
+
+        foreach (var dbItem in dbItems)
+        {
+            // Fetch text dynamically from the currently loaded bible data or translation
+            string text = "";
+            var book = CurrentBibleData?.Books.FirstOrDefault(b => b.Name.Equals(dbItem.Book, StringComparison.OrdinalIgnoreCase));
+            var chapter = book?.Chapters.FirstOrDefault(c => c.Number == dbItem.Chapter);
+            var verse = chapter?.Verses.FirstOrDefault(v => v.Number == dbItem.Verse);
+
+            if (verse != null)
+            {
+                text = verse.Text;
+            }
+
+            loadedList.Add(new ScriptureListItem
+            {
+                Reference = $"{dbItem.Book} {dbItem.Chapter}:{dbItem.Verse}",
+                Text = text
+            });
+        }
+
+        ScriptureList = new ObservableCollection<ScriptureListItem>(loadedList);
+    }
 
     public void LoadBibleTranslations()
     {
         var basePath = AppDomain.CurrentDomain.BaseDirectory;
-        // In dev, the executable is deep in bin/Debug/..., so we need to find the project root or use a relative path
-        // A safer bet is checking relative to the current working directory or known path
         string biblesDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "bibles");
         if (!System.IO.Directory.Exists(biblesDir)) {
-             // Fallback for development if run from IDE
              biblesDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", "..", "..", "bibles");
         }
 
@@ -195,41 +298,25 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void AddScriptureToPresentation()
-    {
-        if (SelectedVerse != null && SelectedBook != null && SelectedChapter != null)
-        {
-            var newItem = new ScriptureListItem
-            {
-                Reference = $"{SelectedBook.Name} {SelectedChapter.Number}:{SelectedVerse.Number}",
-                Text = SelectedVerse.Text
-            };
-            ScriptureList.Add(newItem);
-            
-            // SaveScriptureListToDb(); // Uncomment when DB is ready
-        }
-    }
-
-    [RelayCommand]
     private void RemoveScripture()
     {
-        if (SelectedScripture != null)
+        if (SelectedScripture != null && SelectedScripturelist != null)
         {
             ScriptureList.Remove(SelectedScripture);
-            // SaveScriptureListToDb(); // Uncomment when DB is ready
+            SaveScriptureListToDb();
         }
     }
 
     [RelayCommand]
     private void MoveScriptureUp()
     {
-        if (SelectedScripture != null)
+        if (SelectedScripture != null && SelectedScripturelist != null)
         {
             int index = ScriptureList.IndexOf(SelectedScripture);
             if (index > 0)
             {
                 ScriptureList.Move(index, index - 1);
-                // SaveScriptureListToDb(); // Uncomment when DB is ready
+                SaveScriptureListToDb();
             }
         }
     }
@@ -237,14 +324,36 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void MoveScriptureDown()
     {
-        if (SelectedScripture != null)
+        if (SelectedScripture != null && SelectedScripturelist != null)
         {
             int index = ScriptureList.IndexOf(SelectedScripture);
             if (index < ScriptureList.Count - 1 && index >= 0)
             {
                 ScriptureList.Move(index, index + 1);
-                // SaveScriptureListToDb(); // Uncomment when DB is ready
+                SaveScriptureListToDb();
             }
+        }
+    }
+    
+    [RelayCommand]
+    private void PreviousScripture()
+    {
+        if (ScriptureList[ScriptureList.IndexOf(SelectedScripture) - 1] !=  null)
+        {
+            var index = ScriptureList.IndexOf(SelectedScripture);
+
+            SelectedScripture = ScriptureList[index - 1];
+        }
+    }
+    
+    [RelayCommand]
+    private void NextScripture()
+    {
+        if (ScriptureList[ScriptureList.IndexOf(SelectedScripture) + 1] !=  null)
+        {
+            var index = ScriptureList.IndexOf(SelectedScripture);
+
+            SelectedScripture = ScriptureList[index + 1];
         }
     }
 
@@ -252,8 +361,23 @@ public partial class MainViewModel : ViewModelBase
     {
         if (value != null)
         {
-            // Project the scripture reference
             BibleProjectorVm.Reference = value.Reference;
+        }
+    }
+    
+    [RelayCommand]
+    private void AddScriptureToPresentation()
+    {
+        if (SelectedVerse != null && SelectedBook != null && SelectedChapter != null && SelectedScripturelist != null)
+        {
+            var newItem = new ScriptureListItem
+            {
+                Reference = $"{SelectedBook.Name} {SelectedChapter.Number}:{SelectedVerse.Number}",
+                Text = SelectedVerse.Text
+            };
+            ScriptureList.Add(newItem);
+        
+            SaveScriptureListToDb();
         }
     }
 
@@ -1028,5 +1152,7 @@ public partial class MainViewModel : ViewModelBase
         Songlists = new ObservableCollection<Songlist>(db.Songlists);
         
         LoadBibleTranslations();
+        LoadScripturelistsFromDb();
+        SelectedScripturelist = Scripturelists.LastOrDefault();
     }
 }

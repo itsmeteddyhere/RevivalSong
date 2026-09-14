@@ -199,10 +199,10 @@
                 <Border Grid.Column="0" Background="#111" Padding="10">
                     <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
                         <!-- Search box -->
-                        <TextBox Grid.Row="0" Watermark="Search reference (e.g. Genesis 1:3)" Text="{Binding BibleSearchQuery}" Margin="0,0,0,10" Background="#27272a" Foreground="White"/>
+                        <TextBox Grid.Row="0" Watermark="Search reference (e.g. Genesis 1:3)" Text="{Binding BibleSearchQuery}" Margin="0,0,0,10" Foreground="White" Background="#444" BorderBrush="#444"/>
                         
                         <!-- Translation picker -->
-                        <ComboBox Grid.Row="1" ItemsSource="{Binding AvailableTranslations}" SelectedItem="{Binding SelectedTranslation}" PlaceholderText="Translation" Margin="0,0,0,10" HorizontalAlignment="Stretch" Background="#27272a" Foreground="White">
+                        <ComboBox Grid.Row="1" ItemsSource="{Binding AvailableTranslations}" SelectedItem="{Binding SelectedTranslation}" PlaceholderText="Translation" Margin="0,0,0,10" HorizontalAlignment="Stretch" Foreground="White" Background="#444" BorderBrush="#444">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="m:BibleTranslation">
                                     <TextBlock Text="{Binding Name}"/>
@@ -210,10 +210,24 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                         
-                        <!-- Scripture list picker (placeholder) -->
-                        <ComboBox Grid.Row="2" PlaceholderText="Scripture List" Margin="0,0,0,10" HorizontalAlignment="Stretch" Background="#27272a" Foreground="White">
-                            <ComboBoxItem>Default List</ComboBoxItem>
-                        </ComboBox>
+                        <!-- Scripture list picker -->
+                        <Grid Grid.Row="2" ColumnDefinitions="*, Auto" Margin="0,0,0,10">
+                            <ComboBox Grid.Column="0"
+                                      ItemsSource="{Binding Scripturelists}"
+                                      SelectedItem="{Binding SelectedScripturelist}"
+                                      PlaceholderText="Scripture List"
+                                      HorizontalAlignment="Stretch"
+                                      Foreground="White"
+                                      Background="#444"
+                                      BorderBrush="#444">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="m:Scripturelist">
+                                        <TextBlock Text="{Binding Title}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1" Content="+" Margin="5, 0, 0, 0" Command="{Binding MakeNewScripturelistCommand}" Foreground="White" Background="#444"></Button>
+                        </Grid>
                         
                         <!-- Scripture List -->
                         <Grid Grid.Row="3" RowDefinitions="Auto, *">
@@ -228,10 +242,12 @@
                         </Grid>
                         
                         <!-- Up/Down/Delete Buttons -->
-                        <Grid Grid.Row="4" ColumnDefinitions="Auto, Auto, *, Auto">
-                            <Button Grid.Column="0" Content="↓" Command="{Binding MoveScriptureDownCommand}" Background="#333" Foreground="White" Width="40" HorizontalContentAlignment="Center" Margin="0,0,5,0"/>
-                            <Button Grid.Column="1" Content="↑" Command="{Binding MoveScriptureUpCommand}" Background="#333" Foreground="White" Width="40" HorizontalContentAlignment="Center"/>
-                            <Button Grid.Column="3" Content="Delete" Command="{Binding RemoveScriptureCommand}" Background="#7f1d1d" Foreground="White" HorizontalContentAlignment="Center"/>
+                        <Grid Grid.Row="4" ColumnDefinitions="Auto, Auto, Auto, Auto, *, Auto">
+                            <Button Grid.Column="0" Content="↑" Command="{Binding PreviousScriptureCommand}" Background="#333" Foreground="White" Width="40" HorizontalContentAlignment="Center"/>
+                            <Button Grid.Column="1" Content="↓" Command="{Binding NextScriptureCommand}" Background="#333" Foreground="White" Width="40" HorizontalContentAlignment="Center" Margin="0,0,5,0"/>
+                            <Button Grid.Column="2" Content="⇑" Command="{Binding MoveScriptureUpCommand}" Background="#333" Foreground="White" Width="40" HorizontalContentAlignment="Center" Margin="0,0,5,0"/>
+                            <Button Grid.Column="3" Content="⇓" Command="{Binding MoveScriptureDownCommand}" Background="#333" Foreground="White" Width="40" HorizontalContentAlignment="Center" Margin="0,0,5,0"/>
+                            <Button Grid.Column="4" Content="Delete" Command="{Binding RemoveScriptureCommand}" Background="#7f1d1d" Foreground="White" HorizontalContentAlignment="Center"/>
                         </Grid>
                     </Grid>
                 </Border>
@@ -254,7 +270,7 @@
                         <GridSplitter Grid.Column="1" Background="#222" ResizeDirection="Columns" Margin="10, 0, 10, 0"/>
 
                         <!-- Chapters and Verses -->
-                        <Grid Grid.Column="2" RowDefinitions="Auto, Auto, 10, Auto, *">
+                        <Grid Grid.Column="2" RowDefinitions="Auto, Auto, 10, Auto, *, Auto">
                             <!-- Chapters -->
                             <TextBlock Grid.Row="0" Text="chapters" Foreground="#aaa" Margin="0,0,0,10"/>
                             <ListBox Grid.Row="1" ItemsSource="{Binding Chapters}" SelectedItem="{Binding SelectedChapter}" Background="#111" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Disabled">
@@ -282,6 +298,7 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
+                            <Button Grid.Row="5" Content="+ Add To List" Command="{Binding AddScriptureToPresentationCommand}" Margin="0, 5, 0, 0"></Button>
                         </Grid>
 
                         <GridSplitter Grid.Column="3" Background="#222" ResizeDirection="Columns" Margin="10, 0, 10, 0"/>
@@ -296,7 +313,6 @@
                             </Grid>
                             
                             <!-- Button to add to presentation for now -->
-                            <Button Grid.Row="1" Content="Add to Presentation" Command="{Binding AddScriptureToPresentationCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#1f538d" Foreground="White" Padding="10" Margin="0,10,0,0"/>
                         </Grid>
                     </Grid>
                 </Border>
